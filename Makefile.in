@@ -60,17 +60,19 @@ JOBS = -j 4
 BOOST_BOOTSTRAP_ARGS = --prefix=${PREFIX} --with-libraries=filesystem,date_time,regex,program_options,signals,system,thread
 BOOST_BJAM_ARGS = ${JOBS}
 
-CLEAN_FILES = config.status config.log config.cache autom4te.cache
+CLEAN_FILES = config.status config.log config.cache autom4te.cache $(STAGING)
 DIST_CLEAN_FILES = $(CLEAN_FILES) Makefile
 
 default:
 	@echo "Usage:"
-	@echo "  make all		: Builds and installs Wt and its dependencies"
+	@echo "  make all          : Builds and installs Wt and its dependencies"
 	@echo 
-	@echo "  make deps		: Builds dependencies"
-	@echo "  make deps-install	: Installs dependencies"
-	@echo "  make wt		: Builds wt"
-	@echo "  make install		: Installs wt"
+	@echo "  make deps         : Builds dependencies"
+	@echo "  make deps-install : Installs dependencies"
+	@echo "                        (needs permissions to ${PREFIX})"
+	@echo "  make wt           : Builds wt"
+	@echo "  make install      : Installs wt"
+	@echo "                        (needs permissions to ${PREFIX})"
 
 all:	deps deps-install wt install
 
@@ -81,7 +83,7 @@ clean: \
 	gm-clean \
 	wt-clean \
 	$(addsuffix -clean,$(GM_DEPS))
-	-rm -rf $(CLEAN_FILES) $(STAGING)
+	-rm -rf $(CLEAN_FILES)
 
 distclean: \
 	boost-distclean \
@@ -90,7 +92,7 @@ distclean: \
 	gm-distclean \
 	wt-distclean \
 	$(addsuffix -distclean,$(GM_DEPS))
-	-rm -rf $(DIST_CLEAN_FILES)
+	-rm -rf $(DIST_CLEAN_FILES) 
 
 deps: \
 	boost \
