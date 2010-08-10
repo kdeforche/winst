@@ -1,0 +1,16 @@
+#! /bin/sh
+
+WT=wt-3.1.4
+
+if [ $# -eq 1 ]; then
+  EXE=`find $PWD/wt-build/examples/$1/ -type f -executable -name "*.wt"`;
+  cd $WT/examples/$1;
+  ln -sf ../../../$WT/resources .;
+  $EXE --docroot . --http-port=8080 --http-address=0.0.0.0
+else
+  echo "Usage: $0 <example>";
+  echo "";
+  echo "  where <example> is one of:";
+  echo "";
+  cd $WT/examples; ls
+fi

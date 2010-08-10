@@ -1,0 +1,11 @@
+diff -ru fcgi-2.4.0/libfcgi/fcgio.cpp fcgi-2.4.0-patched/libfcgi/fcgio.cpp
+--- fcgi-2.4.0/libfcgi/fcgio.cpp	2002-02-24 21:12:22.000000000 +0100
++++ fcgi-2.4.0-patched/libfcgi/fcgio.cpp	2010-07-22 18:51:58.000000000 +0200
+@@ -24,6 +24,7 @@
+ 
+ #include <limits.h>
+ #include "fcgio.h"
++#include <stdio.h>
+ 
+ using std::streambuf;
+ using std::istream;

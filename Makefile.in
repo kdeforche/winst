@@ -1,0 +1,254 @@
+PREFIX = @prefix@
+SYSTEM_LIBPNG = @system_libpng@
+SYSTEM_LIBFREETYPE = @system_libfreetype@
+
+BOOST_VERSION = 1_43_0
+FCGI_VERSION = 2.4.0
+HARU_VERSION = 2.1.0
+GM_VERSION = 1.3.12
+PNG_VERSION = 1.4.3
+FREETYPE_VERSION = 2.4.2
+
+WT_VERSION = 3.1.4
+
+BOOST_DIR = boost_${BOOST_VERSION}
+BOOST_PACKAGE = ${BOOST_DIR}.tar.bz2
+BOOST_DOWNLOAD_URL = http://downloads.sourceforge.net/project/boost/boost/$(subst _,.,$(BOOST_VERSION))/${BOOST_PACKAGE}
+
+FCGI_DIR = fcgi-${FCGI_VERSION}
+FCGI_PACKAGE = ${FCGI_DIR}.tar.gz
+FCGI_DOWNLOAD_URL = http://www.fastcgi.com/dist/${FCGI_PACKAGE}
+
+HARU_DIR = libharu-${HARU_VERSION}
+HARU_PACKAGE = ${HARU_DIR}.tar.bz2
+HARU_DOWNLOAD_URL =  http://libharu.org/files/${HARU_PACKAGE}
+
+PNG_DIR = libpng-${PNG_VERSION}
+PNG_PACKAGE = ${PNG_DIR}.tar.bz2
+PNG_DOWNLOAD_URL = http://downloads.sourceforge.net/project/libpng/01-libpng-master/1.4.3/${PNG_PACKAGE}
+
+FREETYPE_DIR = freetype-${FREETYPE_VERSION}
+FREETYPE_PACKAGE = ${FREETYPE_DIR}.tar.bz2
+FREETYPE_DOWNLOAD_URL = http://sourceforge.net/projects/freetype/files/freetype2/2.4.2/${FREETYPE_PACKAGE}/download
+
+GM_DIR = GraphicsMagick-${GM_VERSION}
+GM_PACKAGE = ${GM_DIR}.tar.bz2
+GM_DOWNLOAD_URL = http://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/1.3.12/${GM_PACKAGE}
+
+ifeq ($(SYSTEM_LIBPNG),no)
+GM_DEPS := png
+GM_CFLAGS := -I../${PNG_DIR}/
+GM_LDFLAGS := -L../${PNG_DIR}/
+endif
+
+ifeq ($(SYSTEM_LIBFREETYPE),no)
+GM_DEPS := $(GM_DEPS) freetype
+GM_CFLAGS := $(GM_CFLAGS) -I../${FREETYPE_DIR}/include
+GM_LDFLAGS := $(GM_LDFLAGS) -L../${FREETYPE_DIR}/objs/.libs/
+endif
+
+WT_DIR = wt-${WT_VERSION}
+WT_PACKAGE = ${WT_DIR}.tar.gz
+WT_DOWNLOAD_URL = http://prdownloads.sourceforge.net/witty/${WT_PACKAGE}?download
+
+JOBS = -j 4
+
+BOOST_BOOTSTRAP_ARGS = --prefix=${PREFIX} --with-libraries=filesystem,date_time,regex,program_options,signals,system,thread
+BOOST_BJAM_ARGS = ${JOBS}
+
+CLEAN_FILES = config.status config.log config.cache autom4te.cache
+DIST_CLEAN_FILES = $(CLEAN_FILES) Makefile
+
+default:
+	@echo "Usage:"
+	@echo "  make all		: Builds and installs Wt and its dependencies"
+	@echo 
+	@echo "  make deps		: Builds dependencies"
+	@echo "  make deps-install	: Installs dependencies"
+	@echo "  make wt		: Builds wt"
+	@echo "  make install		: Installs wt"
+
+all:	deps deps-install wt install
+
+clean: \
+	boost-clean \
+	haru-clean \
+	fcgi-clean \
+	gm-clean \
+	wt-clean \
+	$(addsuffix -clean,$(GM_DEPS))
+	-rm -rf $(CLEAN_FILES)
+
+distclean: \
+	boost-distclean \
+	haru-distclean \
+	fcgi-distclean \
+	gm-distclean \
+	wt-distclean \
+	$(addsuffix -distclean,$(GM_DEPS))
+	-rm -rf $(DIST_CLEAN_FILES)
+
+deps: \
+	boost \
+	haru \
+	fcgi \
+	gm \
+	$(GM_DEPS)
+
+deps-install: \
+	boost-install \
+	haru-install \
+	fcgi-install \
+	gm-install \
+	$(addsuffix -install,$(GM_DEPS))
+
+boost: deps/${BOOST_DIR}
+	cd deps/${BOOST_DIR}; \
+	./bootstrap.sh ${BOOST_BOOTSTRAP_ARGS}; \
+	./bjam ${BOOST_BJAM_ARGS};
+
+boost-install:
+	cd deps/${BOOST_DIR}; \
+	./bjam install;
+
+boost-clean:
+	-rm -rf deps/${BOOST_DIR}/stage deps/${BOOST_DIR}/bin.v2
+
+boost-distclean:
+	-rm -rf deps/${BOOST_DIR}
+
+haru: deps/${HARU_DIR}
+	cd deps/${HARU_DIR}; \
+	./configure --prefix=${PREFIX}; \
+	make ${JOBS}
+
+haru-install:
+	cd deps/${HARU_DIR} && make install
+
+haru-clean:
+	-cd deps/${HARU_DIR} && make distclean
+
+haru-distclean:
+	-rm -rf deps/${HARU_DIR}
+
+fcgi: deps/${FCGI_DIR}
+	cd deps/${FCGI_DIR} && ./configure --prefix=${PREFIX} && make ${JOBS}
+
+fcgi-install:
+	cd deps/${FCGI_DIR} && make install
+
+fcgi-clean:
+	-cd deps/${FCGI_DIR} && make distclean
+
+fcgi-distclean:
+	-rm -rf deps/${FCGI_DIR}
+
+gm: deps/${GM_DIR} ${GM_DEPS}
+	cd deps/${GM_DIR}; \
+	CFLAGS="$(GM_CFLAGS)" LDFLAGS="$(GM_LDFLAGS)" ./configure --prefix=${PREFIX} --enable-shared=yes --enable-static=no; \
+	make ${JOBS}
+
+gm-install: ${GM_DEPS_INSTALL}
+	cd deps/${GM_DIR} && make install
+
+gm-clean: ${GM_DEPS_CLEAN}
+	-cd deps/${GM_DIR} && make distclean
+
+gm-distclean: ${GM_DEPS_DISTCLEAN}
+	-rm -rf deps/${GM_DIR}
+
+png: deps/${PNG_DIR}
+	cd deps/${PNG_DIR} && \
+		./configure --prefix=${PREFIX} && \
+		make ${JOBS}
+
+png-install:
+	cd deps/${PNG_DIR} && make install
+
+png-clean:
+	-cd deps/${PNG_DIR} && make distclean
+
+png-distclean:
+	-rm -rf deps/${PNG_DIR}
+
+freetype: deps/${FREETYPE_DIR}
+	cd deps/${FREETYPE_DIR} && \
+		./configure --prefix=${PREFIX} && \
+		make ${JOBS}
+
+freetype-install:
+	cd deps/${FREETYPE_DIR} && make install
+
+freetype-clean:
+	-cd deps/${FREETYPE_DIR} && make distclean
+
+freetype-distclean:
+	-rm -rf deps/${FREETYPE_DIR}
+
+wt: ${WT_DIR}
+	-mkdir wt-build;
+	cd wt-build && cmake ../${WT_DIR} -DCMAKE_INSTALL_PREFIX=${PREFIX} \
+	  -DUSERLIB_ROOT=${PREFIX} -DCONNECTOR_FCGI=ON;
+	cd wt-build && make ${JOBS};
+	cd wt-build/examples && make ${JOBS};
+
+wt-install:
+	cd wt-build && make install;
+
+wt-clean:
+	rm -rf wt-build
+
+wt-distclean: wt-clean
+	-rm -rf ${WT_DIR}
+
+deps/${BOOST_DIR}: deps/${BOOST_PACKAGE}
+	cd deps; tar -xjvf ${BOOST_PACKAGE}
+
+deps/${BOOST_PACKAGE}:
+	cd deps; wget ${BOOST_DOWNLOAD_URL}
+
+deps/${HARU_DIR}: deps/${HARU_PACKAGE}
+	cd deps; tar -xjvf ${HARU_PACKAGE};
+	cd deps/${HARU_DIR}; patch -p1 < ../HPDF_Page_Arc.patch
+
+deps/${HARU_PACKAGE}:
+	cd deps; wget ${HARU_DOWNLOAD_URL}
+
+deps/${FCGI_DIR}: deps/${FCGI_PACKAGE}
+	cd deps; tar -xzvf ${FCGI_PACKAGE};
+	cd deps/${FCGI_DIR}; patch -p1 < ../fcgi-2.4.0-stdio.patch
+
+deps/${FCGI_PACKAGE}:
+	cd deps; wget ${FCGI_DOWNLOAD_URL}
+
+deps/${GM_DIR}: deps/${GM_PACKAGE}
+	cd deps; tar -xjvf ${GM_PACKAGE}
+
+deps/${GM_PACKAGE}:
+	cd deps; wget ${GM_DOWNLOAD_URL}
+
+deps/${PNG_DIR}: deps/${PNG_PACKAGE}
+	cd deps; tar -xjvf ${PNG_PACKAGE}
+
+deps/${PNG_PACKAGE}:
+	cd deps; wget ${PNG_DOWNLOAD_URL}
+
+deps/${FREETYPE_DIR}: deps/${FREETYPE_PACKAGE}
+	cd deps; tar -xjvf ${FREETYPE_PACKAGE}
+
+deps/${FREETYPE_PACKAGE}:
+	cd deps; wget ${FREETYPE_DOWNLOAD_URL}
+
+${WT_DIR}: ${WT_PACKAGE}
+	tar -xzvf ${WT_PACKAGE}
+
+${WT_PACKAGE}:
+	wget ${WT_DOWNLOAD_URL}
+
+fetch-optional: deps/${PNG_DIR} deps/${FREETYPE_DIR}
+
+fetch: fetch-optional ${WT_DIR} \
+	deps/${BOOST_DIR} \
+	deps/${FCGI_DIR} \
+	deps/${HARU_DIR} \
+	deps/${GM_DIR}

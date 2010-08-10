@@ -1,0 +1,24 @@
+Building and installing Wt and its dependencies
+-----------------------------------------------
+
+To build Wt and all its dependencies, you need to run:
+
+ ./configure --prefix=/home/koen/wt
+ make install
+
+If you want to install Wt in a place that requires privileges, and do not
+want to sudo everything, you can break it down in the following parts:
+
+ ./configure --prefix=/opt/wt/
+ make deps
+ sudo make deps-install
+ make wt
+ sudo make install
+
+Running the examples
+--------------------
+
+To run one of the examples:
+
+ ./run-example --list
+ ./run-example mandelbrot
