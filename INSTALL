@@ -1,10 +1,15 @@
+This package provides an easy way to build Wt and all its dependencies,
+to try out the library and run its examples.
+
 Building and installing Wt and its dependencies
 -----------------------------------------------
 
 To build Wt and all its dependencies, you need to run:
 
  ./configure --prefix=/home/koen/wt
- make install
+ make all
+
+Running just 'make' will show the different targets
 
 If you want to install Wt in a place that requires privileges, and do not
 want to sudo everything, you can break it down in the following parts:
@@ -13,7 +18,7 @@ want to sudo everything, you can break it down in the following parts:
  make deps
  sudo make deps-install
  make wt
- sudo make install
+ sudo make wt-install
 
 Running the examples
 --------------------
