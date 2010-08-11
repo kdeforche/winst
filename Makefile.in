@@ -88,10 +88,10 @@ default:
 	@echo "  make deps-install : Installs dependencies"
 	@echo "                        (needs permissions to ${PREFIX})"
 	@echo "  make wt           : Builds wt"
-	@echo "  make install      : Installs wt"
+	@echo "  make wt-install   : Installs wt"
 	@echo "                        (needs permissions to ${PREFIX})"
 
-all:	deps deps-install wt install
+all:	deps deps-install wt wt-install
 
 clean: \
 	boost-clean \
@@ -218,7 +218,7 @@ freetype-distclean:
 wt: $(WT_DIR)
 	-mkdir wt-build;
 	cd wt-build && cmake ../$(WT_DIR) -DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	  -DUSERLIB_ROOT=$(PREFIX) -DGM_ROOT=$(PREFIX) -DCONNECTOR_FCGI=ON;
+	  -DUSERLIB_PREFIX=$(PREFIX);
 	cd wt-build && make $(JOBS);
 	cd wt-build/examples && make $(JOBS);
 
