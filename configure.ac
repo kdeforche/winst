@@ -8,7 +8,7 @@ PKG_CHECK_MODULES([libpng], [libpng >= 1.2.0], [have_libpng=yes], [true])
 have_libfreetype=no
 AC_CHECK_LIB([freetype], [FT_Glyph_Copy], [have_libfreetype=yes], [true])
 
-AC_PATH_PROG([wget], [wget], [wget-is-missing], [/usr/bin:/usr/local/bin:/opt/local/bin])
+AC_PATH_PROG([wget], [wget], [no-wget], [/usr/bin:/usr/local/bin:/opt/local/bin])
 
 AC_SUBST(pkg_config, $PKG_CONFIG)
 AC_SUBST(system_libpng, $have_libpng)
