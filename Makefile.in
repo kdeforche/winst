@@ -102,15 +102,15 @@ DIST_CLEAN_FILES = $(CLEAN_FILES) Makefile
 
 default:
 	@echo "Usage:"
-	@echo "  make all          : Builds and installs Wt and its dependencies"
+	@echo "  $(MAKE) all          : Builds and installs Wt and its dependencies"
 	@echo 
-	@echo "  make fetch        : Downloads packages"
+	@echo "  $(MAKE) fetch        : Downloads packages"
 	@echo
-	@echo "  make deps         : Builds dependencies"
-	@echo "  make deps-install : Installs dependencies"
+	@echo "  $(MAKE) deps         : Builds dependencies"
+	@echo "  $(MAKE) deps-install : Installs dependencies"
 	@echo "                        (needs permissions to ${PREFIX})"
-	@echo "  make wt           : Builds wt"
-	@echo "  make wt-install   : Installs wt"
+	@echo "  $(MAKE) wt           : Builds wt"
+	@echo "  $(MAKE) wt-install   : Installs wt"
 	@echo "                        (needs permissions to ${PREFIX})"
 
 all:	deps deps-install wt wt-install
@@ -143,15 +143,15 @@ fetch: \
 
 deps: \
 	boost \
+	gm \
 	haru \
-	fcgi \
-	gm
+	fcgi
 
 deps-install: \
 	boost-install \
+	gm-install \
 	haru-install \
-	fcgi-install \
-	gm-install
+	fcgi-install
 
 boost: deps/$(BOOST_DIR)
 	cd deps/$(BOOST_DIR); \
@@ -171,27 +171,27 @@ boost-distclean:
 haru: deps/$(HARU_DIR) $(HARU_DEPS)
 	cd deps/$(HARU_DIR) && \
 		./configure --prefix=$(PREFIX) --with-png=$(PNG_PREFIX) && \
-		make $(JOBS)
+		$(MAKE) $(JOBS)
 
 haru-install:
 	cd deps/$(HARU_DIR) && \
 		./configure --prefix=$(PREFIX) --with-png=$(PNG_INSTALL_PREFIX) && \
-		make install
+		$(MAKE) install
 
 haru-clean:
-	-cd deps/$(HARU_DIR) && make distclean
+	-cd deps/$(HARU_DIR) && $(MAKE) distclean
 
 haru-distclean:
 	-rm -rf deps/$(HARU_DIR)
 
 fcgi: deps/$(FCGI_DIR)
-	cd deps/$(FCGI_DIR) && ./configure --prefix=$(PREFIX) && make $(JOBS)
+	cd deps/$(FCGI_DIR) && ./configure --prefix=$(PREFIX) && $(MAKE) $(JOBS)
 
 fcgi-install:
-	cd deps/$(FCGI_DIR) && make install
+	cd deps/$(FCGI_DIR) && $(MAKE) install
 
 fcgi-clean:
-	-cd deps/$(FCGI_DIR) && make distclean
+	-cd deps/$(FCGI_DIR) && $(MAKE) distclean
 
 fcgi-distclean:
 	-rm -rf deps/$(FCGI_DIR)
@@ -201,7 +201,7 @@ gm: deps/$(GM_DIR) $(GM_DEPS)
 		CFLAGS="$(GM_CFLAGS)" LDFLAGS="$(GM_LDFLAGS)" \
 		./configure --prefix=$(PREFIX) \
 			    --enable-shared=yes --enable-static=no; \
-		make $(JOBS)
+		$(MAKE) $(JOBS)
 
 gm-install: $(addsuffix -install,$(GM_DEPS))
 	cd deps/$(GM_DIR) && \
@@ -209,10 +209,10 @@ gm-install: $(addsuffix -install,$(GM_DEPS))
 		CFLAGS="$(GM_CFLAGS)" \
 		LDFLAGS="$(GM_INSTALL_LDFLAGS)" \
 		./configure --prefix=$(PREFIX) \
-		--enable-shared=yes --enable-static=no && make install
+		--enable-shared=yes --enable-static=no && $(MAKE) install
 
 gm-clean: $(addsuffix -clean,$(GM_DEPS)) 
-	-cd deps/$(GM_DIR) && make distclean
+	-cd deps/$(GM_DIR) && $(MAKE) distclean
 
 gm-distclean: $(addsuffix -distclean,$(GM_DEPS))
 	-rm -rf deps/$(GM_DIR)
@@ -220,27 +220,27 @@ gm-distclean: $(addsuffix -distclean,$(GM_DEPS))
 png: deps/$(PNG_DIR)
 	cd deps/$(PNG_DIR) && \
 		./configure --prefix=$(STAGING) && \
-		make $(JOBS) && make install
+		$(MAKE) $(JOBS) && $(MAKE) install
 
 png-install:
-	cd deps/$(PNG_DIR) && ./configure --prefix=$(PREFIX) && make install
+	cd deps/$(PNG_DIR) && ./configure --prefix=$(PREFIX) && $(MAKE) install
 
 png-clean:
-	-cd deps/$(PNG_DIR) && make distclean
+	-cd deps/$(PNG_DIR) && $(MAKE) distclean
 
 png-distclean:
 	-rm -rf deps/$(PNG_DIR)
 
 freetype: deps/$(FREETYPE_DIR)
 	cd deps/$(FREETYPE_DIR) && \
-		./configure --prefix=$(STAGING) && \
-		make $(JOBS) && make install
+		GNUMAKE=$(MAKE) ./configure --prefix=$(STAGING) && \
+		$(MAKE) $(JOBS) && $(MAKE) install
 
 freetype-install:
-	cd deps/$(FREETYPE_DIR) && ./configure --prefix=$(PREFIX) && make install
+	cd deps/$(FREETYPE_DIR) && GNUMAKE=$(MAKE) ./configure --prefix=$(PREFIX) && $(MAKE) install
 
 freetype-clean:
-	-cd deps/$(FREETYPE_DIR) && make distclean
+	-cd deps/$(FREETYPE_DIR) && $(MAKE) distclean
 
 freetype-distclean:
 	-rm -rf deps/$(FREETYPE_DIR)
@@ -249,11 +249,11 @@ wt: $(WT_DIR)
 	-mkdir wt-build;
 	cd wt-build && cmake ../$(WT_DIR) -DCMAKE_INSTALL_PREFIX=$(PREFIX) \
 	  -DUSERLIB_PREFIX=$(PREFIX);
-	cd wt-build && make $(JOBS);
-	cd wt-build/examples && make $(JOBS);
+	cd wt-build && $(MAKE) $(JOBS);
+	cd wt-build/examples && $(MAKE) $(JOBS);
 
 wt-install:
-	cd wt-build && make install;
+	cd wt-build && $(MAKE) install;
 
 wt-clean:
 	rm -rf wt-build
