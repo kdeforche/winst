@@ -6,7 +6,7 @@
 JOBS = -j1
 
 # The version of Wt to download and install
-WT_VERSION = 3.1.4
+WT_VERSION = 3.1.5
 
 ###
 ### Settings by Autoconf
