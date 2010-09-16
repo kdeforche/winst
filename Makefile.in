@@ -6,7 +6,8 @@
 JOBS = -j1
 
 # The version of Wt to download and install
-WT_VERSION = 3.1.5
+# This can be an actual version (like "3.1.5") or "git"
+WT_VERSION = git
 
 ###
 ### Settings by Autoconf
@@ -19,6 +20,7 @@ SYSTEM_LIBPNG_CFLAGS = @system_libpng_cflags@
 SYSTEM_LIBPNG_LDFLAGS = @system_libpng_ldflags@
 SYSTEM_LIBFREETYPE = @system_libfreetype@
 WGET = @wget@
+GIT = @git@
 
 ###
 ### Main makefile logic
@@ -311,10 +313,17 @@ deps/$(FREETYPE_PACKAGE):
 
 freetype-fetch: deps/$(FREETYPE_PACKAGE)
 
+ifeq ($(WT_VERSION),git)
+wt-fetch:
+
+$(WT_DIR):
+	if [ -f $(WT_DIR) ]; then cd $(WT_DIR); $(GIT) pull; else $(GIT) clone  http://www.webtoolkit.eu/git/wt.git $(WT_DIR); fi
+else
+wt-fetch: $(WT_PACKAGE)
+
 $(WT_DIR): $(WT_PACKAGE)
 	tar -xzvf $(WT_PACKAGE)
+endif
 
 $(WT_PACKAGE):
 	@$(call wget,$(WT_DOWNLOAD_URL))
-
-wt-fetch: $(WT_PACKAGE)
