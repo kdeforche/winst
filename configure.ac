@@ -17,6 +17,8 @@ AC_ARG_WITH([wt-version],
 	[],
 	[with_wt_version=3.1.5])
 
+AC_MSG_NOTICE([Setup for Wt version: $with_wt_version])
+
 AC_SUBST(pkg_config, $PKG_CONFIG)
 AC_SUBST(system_libpng, $have_libpng)
 AC_SUBST(system_libpng_ldflags, $libpng_LIBS)
@@ -28,3 +30,5 @@ AC_SUBST(wt_version, $with_wt_version)
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([run-example])
 AC_OUTPUT
+
+chmod +x run-example
