@@ -25,9 +25,9 @@ GIT = @git@
 ###
 
 ifeq ($(WGET),no-wget)
-wget = echo Please download \\n\\t$(1)\\n\\tto `pwd`
+wget = echo Please download \\n\\t$(1)\\n\\tto $(2)
 else
-wget = $(WGET) $(1)
+wget = $(WGET) --output-document=$(2) $(1)
 endif
 
 PWD=$(shell pwd)
@@ -270,7 +270,7 @@ deps/$(BOOST_DIR): deps/$(BOOST_PACKAGE)
 	cd deps; tar -xjvf $(BOOST_PACKAGE)
 
 deps/$(BOOST_PACKAGE):
-	@cd deps; $(call wget,$(BOOST_DOWNLOAD_URL))
+	@$(call wget,$(BOOST_DOWNLOAD_URL),$@)
 
 boost-fetch: deps/$(BOOST_PACKAGE)
 
@@ -279,7 +279,7 @@ deps/$(HARU_DIR): deps/$(HARU_PACKAGE)
 	cd deps/$(HARU_DIR); patch -p1 < ../HPDF_Page_Arc.patch
 
 deps/$(HARU_PACKAGE):
-	@cd deps; $(call wget,$(HARU_DOWNLOAD_URL))
+	@$(call wget,$(HARU_DOWNLOAD_URL),$@)
 
 haru-fetch: deps/$(HARU_PACKAGE)
 
@@ -288,7 +288,7 @@ deps/$(FCGI_DIR): deps/$(FCGI_PACKAGE)
 	cd deps/$(FCGI_DIR); patch -p1 < ../fcgi-2.4.0-stdio.patch
 
 deps/$(FCGI_PACKAGE):
-	@cd deps; $(call wget,$(FCGI_DOWNLOAD_URL))
+	@$(call wget,$(FCGI_DOWNLOAD_URL),$@)
 
 fcgi-fetch: deps/$(FCGI_PACKAGE)
 
@@ -296,7 +296,7 @@ deps/$(GM_DIR): deps/$(GM_PACKAGE)
 	cd deps; tar -xjvf $(GM_PACKAGE)
 
 deps/$(GM_PACKAGE):
-	@cd deps; $(call wget,$(GM_DOWNLOAD_URL))
+	@$(call wget,$(GM_DOWNLOAD_URL),$@)
 
 gm-fetch: deps/$(GM_PACKAGE)
 
@@ -304,7 +304,7 @@ deps/$(PNG_DIR): deps/$(PNG_PACKAGE)
 	cd deps; tar -xjvf $(PNG_PACKAGE)
 
 deps/$(PNG_PACKAGE):
-	@cd deps; $(call wget,$(PNG_DOWNLOAD_URL))
+	@$(call wget,$(PNG_DOWNLOAD_URL),$@)
 
 png-fetch: deps/$(PNG_PACKAGE)
 
@@ -312,7 +312,7 @@ deps/$(FREETYPE_DIR): deps/$(FREETYPE_PACKAGE)
 	cd deps; tar -xjvf $(FREETYPE_PACKAGE)
 
 deps/$(FREETYPE_PACKAGE):
-	@cd deps; $(call wget,$(FREETYPE_DOWNLOAD_URL))
+	@$(call wget,$(FREETYPE_DOWNLOAD_URL),$@)
 
 freetype-fetch: deps/$(FREETYPE_PACKAGE)
 
@@ -329,4 +329,4 @@ $(WT_DIR): $(WT_PACKAGE)
 endif
 
 $(WT_PACKAGE):
-	@$(call wget,$(WT_DOWNLOAD_URL))
+	@$(call wget,$(WT_DOWNLOAD_URL),$@)
