@@ -55,11 +55,11 @@ HARU_DOWNLOAD_URL =  http://libharu.org/files/$(HARU_PACKAGE)
 
 PNG_DIR = libpng-$(PNG_VERSION)
 PNG_PACKAGE = $(PNG_DIR).tar.bz2
-PNG_DOWNLOAD_URL = http://downloads.sourceforge.net/project/libpng/01-libpng-master/1.4.3/$(PNG_PACKAGE)
+PNG_DOWNLOAD_URL = http://downloads.sourceforge.net/project/libpng/libpng14/$(PNG_VERSION)/$(PNG_PACKAGE)
 
 FREETYPE_DIR = freetype-$(FREETYPE_VERSION)
 FREETYPE_PACKAGE = $(FREETYPE_DIR).tar.bz2
-FREETYPE_DOWNLOAD_URL = http://sourceforge.net/projects/freetype/files/freetype2/2.4.2/$(FREETYPE_PACKAGE)/download
+FREETYPE_DOWNLOAD_URL = http://sourceforge.net/projects/freetype/files/freetype2/2.4.2/$(FREETYPE_PACKAGE)
 
 GM_DIR = GraphicsMagick-$(GM_VERSION)
 GM_PACKAGE = $(GM_DIR).tar.bz2
@@ -151,6 +151,7 @@ deps: \
 
 deps-install: \
 	boost-install \
+	$(addsuffix -install,$(GM_DEPS)) \
 	haru-install \
 	fcgi-install \
 	gm-install
