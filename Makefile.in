@@ -34,7 +34,7 @@ PWD=$(shell pwd)
 
 BOOST_VERSION = 1_43_0
 FCGI_VERSION = 2.4.0
-HARU_VERSION = 2.1.0
+HARU_VERSION = 2.2.1
 GM_VERSION = 1.3.12
 PNG_VERSION = 1.4.3
 FREETYPE_VERSION = 2.4.2
@@ -271,7 +271,9 @@ boost-fetch: deps/$(BOOST_PACKAGE)
 
 deps/$(HARU_DIR): deps/$(HARU_PACKAGE)
 	cd deps; tar -xjvf $(HARU_PACKAGE);
-	cd deps/$(HARU_DIR); patch -p1 < ../HPDF_Page_Arc.patch
+	cd deps/$(HARU_DIR); patch -p1 < ../Haru_HPDF_Page_Arc.patch;
+	cd deps/$(HARU_DIR); patch -p1 < ../Haru_UTF8-1.patch;
+	cd deps/$(HARU_DIR); patch -p1 < ../Haru_UTF8-2.patch;
 
 deps/$(HARU_PACKAGE):
 	@cd deps; $(call wget,$(HARU_DOWNLOAD_URL))
