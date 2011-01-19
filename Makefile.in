@@ -25,7 +25,7 @@ WGET = @wget@
 ###
 
 ifeq ($(WGET),no-wget)
-wget = echo Please download \\n\\t$(1)\\n\\tto `pwd`
+wget = echo Please download \\n\\t$(1)\\n\\tto `pwd`\\nOr install wget and re-run configure to automatically download the files
 else
 wget = $(WGET) $(1)
 endif
