@@ -32,11 +32,11 @@ endif
 
 PWD=$(shell pwd)
 
-BOOST_VERSION = 1_44_0
+BOOST_VERSION = 1_46_0
 FCGI_VERSION = 2.4.0
-HARU_VERSION = 2.2.1
+HARU_VERSION = kdeforche-git
 GM_VERSION = 1.3.12
-PNG_VERSION = 1.4.3
+PNG_VERSION = 1.5.0
 FREETYPE_VERSION = 2.4.2
 
 BOOST_DOT_VERSION = $(subst _,.,$(BOOST_VERSION))
@@ -50,20 +50,18 @@ FCGI_PACKAGE = $(FCGI_DIR).tar.gz
 FCGI_DOWNLOAD_URL = http://www.fastcgi.com/dist/$(FCGI_PACKAGE)
 
 HARU_DIR = libharu-$(HARU_VERSION)
-HARU_PACKAGE = $(HARU_DIR).tar.bz2
-HARU_DOWNLOAD_URL =  http://libharu.org/files/$(HARU_PACKAGE)
 
 PNG_DIR = libpng-$(PNG_VERSION)
 PNG_PACKAGE = $(PNG_DIR).tar.bz2
-PNG_DOWNLOAD_URL = http://downloads.sourceforge.net/project/libpng/libpng14/$(PNG_VERSION)/$(PNG_PACKAGE)
+PNG_DOWNLOAD_URL = http://downloads.sourceforge.net/project/libpng/libpng15/$(PNG_VERSION)/$(PNG_PACKAGE)
 
 FREETYPE_DIR = freetype-$(FREETYPE_VERSION)
 FREETYPE_PACKAGE = $(FREETYPE_DIR).tar.bz2
-FREETYPE_DOWNLOAD_URL = http://sourceforge.net/projects/freetype/files/freetype2/2.4.2/$(FREETYPE_PACKAGE)
+FREETYPE_DOWNLOAD_URL = http://sourceforge.net/projects/freetype/files/freetype2/$(FREETYPE_VERSION)/$(FREETYPE_PACKAGE)
 
 GM_DIR = GraphicsMagick-$(GM_VERSION)
 GM_PACKAGE = $(GM_DIR).tar.bz2
-GM_DOWNLOAD_URL = http://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/1.3.12/$(GM_PACKAGE)
+GM_DOWNLOAD_URL = http://downloads.sourceforge.net/project/graphicsmagick/graphicsmagick/$(GM_VERSION)/$(GM_PACKAGE)
 
 STAGING = $(PWD)/staging
 
@@ -203,7 +201,7 @@ gm: deps/$(GM_DIR) $(GM_DEPS)
 	cd deps/$(GM_DIR); \
 		CFLAGS="$(GM_CFLAGS)" LDFLAGS="$(GM_LDFLAGS)" \
 		./configure --prefix=$(PREFIX) \
-			    --enable-shared=yes --enable-static=no; \
+			    --enable-shared=yes --enable-static=no --without-magick-plus-plus --without-perl; \
 		$(MAKE) $(JOBS)
 
 gm-install: $(addsuffix -install,$(GM_DEPS))
@@ -212,7 +210,7 @@ gm-install: $(addsuffix -install,$(GM_DEPS))
 		CFLAGS="$(GM_CFLAGS)" \
 		LDFLAGS="$(GM_INSTALL_LDFLAGS)" \
 		./configure --prefix=$(PREFIX) \
-		--enable-shared=yes --enable-static=no && $(MAKE) install
+		--enable-shared=yes --enable-static=no --without-magick-plus-plus --without-perl && $(MAKE) install
 
 gm-clean: $(addsuffix -clean,$(GM_DEPS)) 
 	-cd deps/$(GM_DIR) && $(MAKE) distclean
@@ -275,16 +273,10 @@ deps/$(BOOST_PACKAGE):
 
 boost-fetch: deps/$(BOOST_PACKAGE)
 
-deps/$(HARU_DIR): deps/$(HARU_PACKAGE)
-	cd deps; tar -xjvf $(HARU_PACKAGE);
-	cd deps/$(HARU_DIR); patch -p1 < ../Haru_HPDF_Page_Arc.patch;
-	cd deps/$(HARU_DIR); patch -p1 < ../Haru_UTF8-1.patch;
-	cd deps/$(HARU_DIR); patch -p1 < ../Haru_UTF8-2.patch;
+deps/$(HARU_DIR):
+	$(GIT) clone git://github.com/kdeforche/libharu.git deps/$(HARU_DIR);
 
-deps/$(HARU_PACKAGE):
-	@$(call wget,$(HARU_DOWNLOAD_URL),$@)
-
-haru-fetch: deps/$(HARU_PACKAGE)
+haru-fetch:
 
 deps/$(FCGI_DIR): deps/$(FCGI_PACKAGE)
 	cd deps; tar -xzvf $(FCGI_PACKAGE);

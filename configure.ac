@@ -1,8 +1,8 @@
-AC_INIT([Wt jumbo], [3.1.4], [koen@emweb.be])
+AC_INIT([Wt jumbo], [3.1.9], [koen@emweb.be])
 
 AC_PREREQ([2.59])
 
-have_libpng=no
+have_libpng=yes
 PKG_CHECK_MODULES([libpng], [libpng >= 1.2.0], [have_libpng=yes], [true]) 
 
 have_libfreetype=no
@@ -13,9 +13,9 @@ AC_PATH_PROG([git], [git], [git], [/usr/bin:/usr/local/bin:/opt/local/bin])
 
 AC_ARG_WITH([wt-version],
 	[AS_HELP_STRING([--with-wt-version],
-	  [Wt version (e.g. '3.1.5') or 'git'])],
+	  [Wt version (e.g. '3.1.9') or 'git'])],
 	[],
-	[with_wt_version=3.1.5])
+	[with_wt_version=3.1.9])
 
 AC_MSG_NOTICE([Setup for Wt version: $with_wt_version])
 
