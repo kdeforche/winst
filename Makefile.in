@@ -32,7 +32,7 @@ endif
 
 PWD=$(shell pwd)
 
-BOOST_VERSION = 1_46_0
+BOOST_VERSION = 1_45_0
 FCGI_VERSION = 2.4.0
 HARU_VERSION = kdeforche-git
 GM_VERSION = 1.3.12
