@@ -12,7 +12,7 @@ I. Building and installing Wt and its dependencies
 
 To build Wt and all its dependencies, you need to run:
 
-  $ ./configure --prefix=$PWD/install --with-wt-version=3.1.9
+  $ ./configure --prefix=$PWD/install --with-wt-version=3.1.10
   $ make all
 
 You can chose any wt version or 'git' for using the latest git development
