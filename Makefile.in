@@ -323,7 +323,7 @@ ifeq ($(WT_VERSION),git)
 wt-fetch:
 
 $(WT_DIR):
-	$(GIT) clone  http://www.webtoolkit.eu/git/wt.git $(WT_DIR);
+	$(GIT) clone git://github.com/kdeforche/wt.git $(WT_DIR);
 else
 wt-fetch: $(WT_PACKAGE)
 
