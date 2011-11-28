@@ -12,8 +12,11 @@ I. Building and installing Wt and its dependencies
 
 To build Wt and all its dependencies, you need to run:
 
-  $ ./configure --prefix=$PWD/install
+  $ ./configure --prefix=$PWD/install --with-wt-version=3.1.10
   $ make all
+
+You can chose any wt version or 'git' for using the latest git development
+version.
 
 Running just 'make' will show the different targets
 
@@ -32,5 +35,5 @@ II. Running the examples
 
 To run one of the examples:
 
- ./run-example --list
+ ./run-example
  ./run-example mandelbrot

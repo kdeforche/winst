@@ -1,17 +1,16 @@
 ###
 ### Settings you may want to change
+### @configure_input@
 ###
 
 # The number of jobs using by make
 JOBS = -j1
 
-# The version of Wt to download and install
-WT_VERSION = 3.1.4
-
 ###
 ### Settings by Autoconf
 ###
 
+WT_VERSION = @wt_version@
 PKG_CONFIG = @pkg_config@
 PREFIX = @prefix@
 SYSTEM_LIBPNG = @system_libpng@
@@ -19,45 +18,46 @@ SYSTEM_LIBPNG_CFLAGS = @system_libpng_cflags@
 SYSTEM_LIBPNG_LDFLAGS = @system_libpng_ldflags@
 SYSTEM_LIBFREETYPE = @system_libfreetype@
 WGET = @wget@
+GIT = @git@
 
 ###
 ### Main makefile logic
 ###
 
 ifeq ($(WGET),no-wget)
-wget = echo Please download \\n\\t$(1)\\n\\tto `pwd`\\nOr install wget and re-run configure to automatically download the files
+wget = echo Please download \\n\\t$(1)\\n\\tto $(2) \\nOr install wget and re-run configure to automatically download the files
 else
-wget = $(WGET) $(1)
+wget = $(WGET) --output-document=$(2) $(1)
 endif
 
 PWD=$(shell pwd)
 
-BOOST_VERSION = 1_43_0
+BOOST_VERSION = 1_48_0
 FCGI_VERSION = 2.4.0
-HARU_VERSION = 2.2.1
+HARU_VERSION = kdeforche-git
 GM_VERSION = 1.3.12
-PNG_VERSION = 1.4.3
+PNG_VERSION = 1.5.0
 FREETYPE_VERSION = 2.4.2
+
+BOOST_DOT_VERSION = $(subst _,.,$(BOOST_VERSION))
 
 BOOST_DIR = boost_$(BOOST_VERSION)
 BOOST_PACKAGE = $(BOOST_DIR).tar.bz2
-BOOST_DOWNLOAD_URL = http://downloads.sourceforge.net/project/boost/boost/$(subst _,.,$(BOOST_VERSION))/$(BOOST_PACKAGE)
+BOOST_DOWNLOAD_URL = http://downloads.sourceforge.net/project/boost/boost/$(BOOST_DOT_VERSION)/$(BOOST_PACKAGE)
 
 FCGI_DIR = fcgi-$(FCGI_VERSION)
 FCGI_PACKAGE = $(FCGI_DIR).tar.gz
 FCGI_DOWNLOAD_URL = http://www.fastcgi.com/dist/$(FCGI_PACKAGE)
 
 HARU_DIR = libharu-$(HARU_VERSION)
-HARU_PACKAGE = $(HARU_DIR).tar.bz2
-HARU_DOWNLOAD_URL =  http://libharu.org/files/$(HARU_PACKAGE)
 
 PNG_DIR = libpng-$(PNG_VERSION)
 PNG_PACKAGE = $(PNG_DIR).tar.bz2
-PNG_DOWNLOAD_URL = http://downloads.sourceforge.net/project/libpng/01-libpng-master/1.4.3/$(PNG_PACKAGE)
+PNG_DOWNLOAD_URL = http://downloads.sourceforge.net/project/libpng/libpng15/$(PNG_VERSION)/$(PNG_PACKAGE)
 
 FREETYPE_DIR = freetype-$(FREETYPE_VERSION)
 FREETYPE_PACKAGE = $(FREETYPE_DIR).tar.bz2
-FREETYPE_DOWNLOAD_URL = http://sourceforge.net/projects/freetype/files/freetype2/$(FREETYPE_VERSION)/$(FREETYPE_PACKAGE)/download
+FREETYPE_DOWNLOAD_URL = http://sourceforge.net/projects/freetype/files/freetype2/$(FREETYPE_VERSION)/$(FREETYPE_PACKAGE)
 
 GM_DIR = GraphicsMagick-$(GM_VERSION)
 GM_PACKAGE = $(GM_DIR).tar.bz2
@@ -94,7 +94,7 @@ WT_DIR = wt-$(WT_VERSION)
 WT_PACKAGE = $(WT_DIR).tar.gz
 WT_DOWNLOAD_URL = http://prdownloads.sourceforge.net/witty/$(WT_PACKAGE)?download
 
-BOOST_BOOTSTRAP_ARGS = --prefix=$(PREFIX) --with-libraries=filesystem,date_time,regex,program_options,signals,system,thread
+BOOST_BOOTSTRAP_ARGS = --prefix=$(PREFIX) --with-libraries=filesystem,date_time,regex,program_options,signals,system,thread,random
 BOOST_BJAM_ARGS = $(JOBS)
 
 CLEAN_FILES = config.status config.log config.cache autom4te.cache $(STAGING)
@@ -149,6 +149,7 @@ deps: \
 
 deps-install: \
 	boost-install \
+	$(addsuffix -install,$(GM_DEPS)) \
 	gm-install \
 	haru-install \
 	fcgi-install
@@ -201,7 +202,9 @@ gm: deps/$(GM_DIR) $(GM_DEPS)
 		CFLAGS="$(GM_CFLAGS)" LDFLAGS="$(GM_LDFLAGS)" \
 		./configure --prefix=$(PREFIX) \
 			    --disable-openmp \
-			    --enable-shared=yes --enable-static=no; \
+			    --enable-shared=yes \
+			    --enable-static=no \
+			    --without-magick-plus-plus --without-perl; \
 		$(MAKE) $(JOBS)
 
 gm-install: $(addsuffix -install,$(GM_DEPS))
@@ -211,7 +214,10 @@ gm-install: $(addsuffix -install,$(GM_DEPS))
 		LDFLAGS="$(GM_INSTALL_LDFLAGS)" \
 		./configure --prefix=$(PREFIX) \
 			    --disable-openmp \
-			    --enable-shared=yes --enable-static=no && $(MAKE) install
+			    --enable-shared=yes \
+			    --enable-static=no \
+			    --without-magick-plus-plus --without-perl \
+			&& $(MAKE) install
 
 gm-clean: $(addsuffix -clean,$(GM_DEPS)) 
 	-cd deps/$(GM_DIR) && $(MAKE) distclean
@@ -248,9 +254,12 @@ freetype-distclean:
 	-rm -rf deps/$(FREETYPE_DIR)
 
 wt: $(WT_DIR)
+ifeq ($(WT_VERSION),git)
+	-cd $(WT_DIR); $(GIT) pull;
+endif
 	-mkdir wt-build;
 	cd wt-build && cmake ../$(WT_DIR) -DCMAKE_INSTALL_PREFIX=$(PREFIX) \
-	  -DUSERLIB_PREFIX=$(PREFIX);
+	  -DUSERLIB_PREFIX=$(PREFIX) -DBOOST_PREFIX=$(PREFIX) -DBOOST_VERSION=$(subst _0,,$(BOOST_VERSION));
 	cd wt-build && $(MAKE) $(JOBS);
 	cd wt-build/examples && $(MAKE) $(JOBS);
 
@@ -267,27 +276,22 @@ deps/$(BOOST_DIR): deps/$(BOOST_PACKAGE)
 	cd deps; tar -xjvf $(BOOST_PACKAGE)
 
 deps/$(BOOST_PACKAGE):
-	@cd deps; $(call wget,$(BOOST_DOWNLOAD_URL))
+	@$(call wget,$(BOOST_DOWNLOAD_URL),$@)
 
 boost-fetch: deps/$(BOOST_PACKAGE)
 
-deps/$(HARU_DIR): deps/$(HARU_PACKAGE)
-	cd deps; tar -xjvf $(HARU_PACKAGE);
-	cd deps/$(HARU_DIR); patch -p1 < ../Haru_HPDF_Page_Arc.patch;
-	cd deps/$(HARU_DIR); patch -p1 < ../Haru_UTF8-1.patch;
-	cd deps/$(HARU_DIR); patch -p1 < ../Haru_UTF8-2.patch;
+deps/$(HARU_DIR):
+	$(GIT) clone git://github.com/kdeforche/libharu.git deps/$(HARU_DIR) && \
+		(cd deps/$(HARU_DIR); ./buildconf.sh;)
 
-deps/$(HARU_PACKAGE):
-	@cd deps; $(call wget,$(HARU_DOWNLOAD_URL))
-
-haru-fetch: deps/$(HARU_PACKAGE)
+haru-fetch:
 
 deps/$(FCGI_DIR): deps/$(FCGI_PACKAGE)
 	cd deps; tar -xzvf $(FCGI_PACKAGE);
 	cd deps/$(FCGI_DIR); patch -p1 < ../fcgi-2.4.0-stdio.patch
 
 deps/$(FCGI_PACKAGE):
-	@cd deps; $(call wget,$(FCGI_DOWNLOAD_URL))
+	@$(call wget,$(FCGI_DOWNLOAD_URL),$@)
 
 fcgi-fetch: deps/$(FCGI_PACKAGE)
 
@@ -295,7 +299,7 @@ deps/$(GM_DIR): deps/$(GM_PACKAGE)
 	cd deps; tar -xjvf $(GM_PACKAGE)
 
 deps/$(GM_PACKAGE):
-	@cd deps; $(call wget,$(GM_DOWNLOAD_URL))
+	@$(call wget,$(GM_DOWNLOAD_URL),$@)
 
 gm-fetch: deps/$(GM_PACKAGE)
 
@@ -303,7 +307,7 @@ deps/$(PNG_DIR): deps/$(PNG_PACKAGE)
 	cd deps; tar -xjvf $(PNG_PACKAGE)
 
 deps/$(PNG_PACKAGE):
-	@cd deps; $(call wget,$(PNG_DOWNLOAD_URL))
+	@$(call wget,$(PNG_DOWNLOAD_URL),$@)
 
 png-fetch: deps/$(PNG_PACKAGE)
 
@@ -311,14 +315,21 @@ deps/$(FREETYPE_DIR): deps/$(FREETYPE_PACKAGE)
 	cd deps; tar -xjvf $(FREETYPE_PACKAGE)
 
 deps/$(FREETYPE_PACKAGE):
-	@cd deps; $(call wget,$(FREETYPE_DOWNLOAD_URL))
+	@$(call wget,$(FREETYPE_DOWNLOAD_URL),$@)
 
 freetype-fetch: deps/$(FREETYPE_PACKAGE)
 
+ifeq ($(WT_VERSION),git)
+wt-fetch:
+
+$(WT_DIR):
+	$(GIT) clone  http://www.webtoolkit.eu/git/wt.git $(WT_DIR);
+else
+wt-fetch: $(WT_PACKAGE)
+
 $(WT_DIR): $(WT_PACKAGE)
 	tar -xzvf $(WT_PACKAGE)
+endif
 
 $(WT_PACKAGE):
-	@$(call wget,$(WT_DOWNLOAD_URL))
-
-wt-fetch: $(WT_PACKAGE)
+	@$(call wget,$(WT_DOWNLOAD_URL),$@)
