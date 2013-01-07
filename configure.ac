@@ -1,4 +1,4 @@
-AC_INIT([Wt jumbo], [3.1.11], [koen@emweb.be])
+AC_INIT([Wt jumbo], [3.2.0], [koen@emweb.be])
 
 AC_PREREQ([2.59])
 
@@ -13,9 +13,9 @@ AC_PATH_PROG([git], [git], [git], [/usr/bin:/usr/local/bin:/opt/local/bin])
 
 AC_ARG_WITH([wt-version],
 	[AS_HELP_STRING([--with-wt-version],
-	  [Wt version (e.g. '3.1.11') or 'git'])],
+	  [Wt version (e.g. '3.2.0') or 'git'])],
 	[],
-	[with_wt_version=3.1.11])
+	[with_wt_version=3.2.0])
 
 AC_MSG_NOTICE([Setup for Wt version: $with_wt_version])
 
