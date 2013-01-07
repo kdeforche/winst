@@ -19,7 +19,7 @@ AC_ARG_WITH([wt-version],
 
 AC_MSG_NOTICE([Setup for Wt version: $with_wt_version])
 
-AC_SUBST(pkg_config, $PKG_CONFIG)
+AC_SUBST(pkg_config, "$PKG_CONFIG")
 AC_SUBST(system_libpng, $have_libpng)
 AC_SUBST(system_libpng_ldflags, $libpng_LIBS)
 AC_SUBST(system_libpng_cflags, $libpng_CFLAGS)
