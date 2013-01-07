@@ -282,7 +282,7 @@ boost-fetch: deps/$(BOOST_PACKAGE)
 
 deps/$(HARU_DIR):
 	$(GIT) clone git://github.com/kdeforche/libharu.git deps/$(HARU_DIR) && \
-		(cd deps/$(HARU_DIR); ./buildconf.sh;)
+		(cd deps/$(HARU_DIR); ./buildconf.sh --force;)
 
 haru-fetch:
 
