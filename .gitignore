@@ -1,0 +1,11 @@
+deps/
+Makefile
+config.log
+config.status
+configure
+autom4te.cache
+wt-*
+make.deps.out
+aclocal.m4
+run-example
+*.swp
