@@ -18,6 +18,12 @@ To build Wt and all its dependencies, you need to run:
 You can chose any wt version or 'git' for using the latest git development
 version.
 
+You can specify which version of boost to build, an optional BOOST_PREFIX, and a compiler mode (if your compiler supports it).
+
+  $ ./configure --prefix=/usr/local/boost_1_59_0/wt-3.3.5  --with-wt-version=3.3.5-rc1 --with-boost-version=1_59_0 \
+ BOOST_PREFIX=/usr/local/boost_1_59_0  WT_CPP_11_MODE=-std=c++0x
+
+
 Running just 'make' will show the different targets
 
 If you want to install Wt in a place that requires privileges, and do not
